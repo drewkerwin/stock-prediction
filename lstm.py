@@ -18,6 +18,7 @@ target = target.reshape(100,1,leng)/200
 
 # Build Model
 model = Sequential()  
+
 model.add(LSTM(leng, input_shape=(1, leng),return_sequences=True,activation='sigmoid'))
 model.add(LSTM(leng, input_shape=(1, leng),return_sequences=True,activation='sigmoid'))
 model.add(LSTM(leng, input_shape=(1, leng),return_sequences=True,activation='sigmoid'))

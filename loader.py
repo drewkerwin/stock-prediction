@@ -13,6 +13,8 @@ from keras.layers import Dense, Dropout
 from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 
+from interest_rate_loader import InterestRateLoader
+
 class DataLoader:
 	def series_to_supervised(self, data, n_in=1, n_out=1, dropnan=True):
 		n_vars = 1 if type(data) is list else data.shape[1]
@@ -38,7 +40,7 @@ class DataLoader:
 		return agg
 	
 	def parse(self, x):
-		return pd.to_datetime(x)
+		return pd.to_datetime(x, infer_datetime_format=True)
 		
 	def load_all_data(self):
 
@@ -79,9 +81,17 @@ class DataLoader:
 		# merge spy & vix data
 		data_merged = data_spy.merge(data_vix, how='outer', left_index=True, right_index=True)
 		data_merged.to_csv("data/merged.csv")
+		
+		# interest rate loader
+		iloader = InterestRateLoader()
+		data_int_rate = iloader.load_all_data(all=True)
 
-		#clean up data by removing "NA" or blank data
-		data_cleaned = data_merged.dropna()
+		# merge interest rates
+		data_merged = data_spy.merge(data_int_rate, how='outer', left_index=True, right_index=True)
+		data_merged.to_csv("data/merged_irate.csv")
+		
+		#clean up data by fill foward
+		data_cleaned = data_merged.fillna(method='ffill')
 		data_cleaned.to_csv("data/cleaned.csv")
 		print(data_cleaned.head(5))
 		
@@ -96,7 +106,7 @@ class DataLoader:
 		# frame as supervised learning
 		supervised = self.series_to_supervised(scaled, 1, 1)
 		# drop columns that are not predicted
-		supervised.drop(supervised.columns[[10,11,12,13,15,16,17,18,19]], axis=1, inplace=True)
+		#supervised.drop(supervised.columns[[10,11,12,13,15,16,17,18,19]], axis=1, inplace=True)
 		print(supervised.head())
 
 		# split into train and test sets
@@ -130,7 +140,7 @@ class DataLoader:
 
 		# train the model; save model file when improved
 		checkpointer = ModelCheckpoint(filepath='saved_models/money.hdf5', verbose=1, save_best_only=True)
-		history = model.fit(X_train, y_train, epochs=2000, batch_size=512,
+		history = model.fit(X_train, y_train, epochs=50, batch_size=80,
 			validation_data=(X_test, y_test), 
 			verbose=2, shuffle=True)		
 		#callbacks=[checkpointer],

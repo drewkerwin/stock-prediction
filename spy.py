@@ -31,7 +31,7 @@ def create_dataset(dataset, look_back):
 		
 def run_test():
 	# parameters to be set ("optimum" hyperparameters obtained from grid search):
-	look_back = 20
+	look_back = 180
 	epochs = 250
 	batch_size = 512
 
@@ -39,10 +39,12 @@ def run_test():
 	np.random.seed(7)
 
 	# read all prices using panda
-	prices_dataset =  pd.read_csv('data/spy.csv', header=0)
-
+	prices_dataset =  pd.read_csv('data/cleaned.csv', header=0)
+	new_data = prices_dataset[(prices_dataset.Date > '2017-09-30')].index
+	prices_dataset = prices_dataset.drop(new_data)
+		
 	# save Apple's stock values as type of floating point number
-	spy_prices = prices_dataset.Adj_Close.values.astype('float32')
+	spy_prices = prices_dataset.SPY_ADJ_CLOSE.values.astype('float32')
 
 	# reshape to column vector
 	spy_prices = spy_prices.reshape(len(spy_prices), 1)
@@ -68,7 +70,7 @@ def run_test():
 	
 	# create and fit the LSTM network
 	model = Sequential()
-	model.add(LSTM(32, input_shape=(look_back, 1), activation='linear'))
+	model.add(LSTM(4, input_shape=(look_back, 1), activation='linear'))
 	model.add(Dense(1))
 
 	# compile model
@@ -95,6 +97,9 @@ def run_test():
 	print('Train Score: %.2f RMSE' % (trainScore))
 	testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:,0]))
 	print('Test Score: %.2f RMSE' % (testScore))
+	
+	print(testPredict)
+	print(testPredict[:, 0])
 	
 	# shift predictions of training data for plotting
 	trainPredictPlot = np.empty_like(spy_prices)

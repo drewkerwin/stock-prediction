@@ -60,7 +60,7 @@ def run_test():
 
 	print('Split data into training set and test set... Number of training samples/ test samples:', len(train), len(test))
 
-	# convert Apple's stock price data into time series dataset
+	# convert SPY stock price data into time series dataset
 	trainX, trainY = create_dataset(train, look_back)
 	testX, testY = create_dataset(test, look_back)
 	

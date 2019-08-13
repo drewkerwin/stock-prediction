@@ -1,9 +1,9 @@
-name: udacity_py3
+name: stock_env_py3
 channels:
   - soumith
   - PyTorch
-  - anaconda
   - conda-forge
+  - anaconda
   - defaults
 dependencies:
   - _tflow_select=2.3.0=mkl
@@ -151,5 +151,12 @@ dependencies:
   - zeromq=4.3.1=h0a44026_3
   - zlib=1.2.11=h1de35cc_3
   - pip:
+    - chardet==3.0.4
+    - idna==2.8
+    - multitasking==0.0.9
+    - requests==2.22.0
     - torchsummary==1.5.1
-prefix: /Users/dkerwin/anaconda3/envs/udacity_py3
+    - urllib3==1.25.3
+    - yfinance==0.1.44
+prefix: /Users/dkerwin/anaconda3/envs/stock_env_py3
+
